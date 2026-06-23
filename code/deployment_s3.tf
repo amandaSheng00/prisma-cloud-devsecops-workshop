@@ -8,6 +8,21 @@ resource "aws_s3_bucket" "data" {
   
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "data_lifecycle" {
+  bucket = aws_s3_bucket.data.id
+  rule {
+    id     = "intelligent_tiering_rule"
+    status = "Enabled"
+    transition {
+      days          = 30
+      storage_class = "INTELLIGENT_TIERING"
+    }
+    filter {
+      object_size_greater_than = 131072 # 128KB in bytes
+    }
+  }
+}
+
 resource "aws_s3_bucket_object" "data_object" {
   bucket = aws_s3_bucket.data.id
   key    = "customer-master.xlsx"
